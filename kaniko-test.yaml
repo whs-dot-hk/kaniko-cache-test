@@ -14,6 +14,14 @@ spec:
     volumeMounts:
     - name: kaniko-cache
       mountPath: /cache
+  initContainers:
+  - name: warmer
+    image: gcr.io/kaniko-project/warmer:latest
+    args:
+    - --image=nginx:1.18.0-alpine
+    volumeMounts:
+    - name: kaniko-cache
+      mountPath: /cache
   restartPolicy: Never
   volumes:
   - name: kaniko-cache
@@ -27,7 +35,7 @@ metadata:
 spec:
   storageClassName: gp2
   accessModes:
-    - ReadOnlyMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 8Gi
