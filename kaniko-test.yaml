@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+    - --dockerfile=Dockerfile
+    - --context=git://github.com/whs-dot-hk/kaniko-cache-test.git#refs/heads/master
+    - --destination=102933037533.dkr.ecr.us-east-2.amazonaws.com/kaniko-cache-test:latest
+    - --cache
+    volumeMounts:
+    - name: kaniko-cache
+      mountPath: /cache
+  restartPolicy: Never
+  volumes:
+  - name: kaniko-cache
+    persistentVolumeClaim:
+      claimName: kaniko-cache-claim
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kaniko-cache-claim
+spec:
+  storageClassName: gp2
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 8Gi
